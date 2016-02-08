@@ -15,15 +15,26 @@ object SimpleFlow {
 
   def main(array: Array[String]): Unit = {
     simpleFlow
+    simpleMatValues
+
     sinkFold
     sinkHead
     sinkOnComplete
-    foo
+    sinkActorRef
+    compose
   }
 
   def simpleFlow: Unit = {
     val source = Source(1 to 10).map(_ * 2)
     source.runWith(Sink.foreach(println))
+  }
+
+  def simpleMatValues: Unit = {
+    val count: Flow[Int, Int, Unit] = Flow[Int].map(_ => 1)
+    val sumSink: Sink[Int, Future[Int]] = Sink.fold[Int, Int](0)(_ + _)
+
+    val counterGraph: RunnableGraph[Future[Int]] = source.via(count).toMat(sumSink)(Keep.right)
+    val sum: Future[Int] = counterGraph.run()
   }
 
   def sinkFold: Unit = {
@@ -47,15 +58,18 @@ object SimpleFlow {
   def sinkActorRef: Unit = {
     val actor = system.actorOf(Props[Foo], "foo")
     val sink = Sink.actorRef(actor, "done")
-    Sink.
     val runnableGraph = source.toMat(sink)(Keep.right)
     runnableGraph.run()
 
     class Foo extends Actor {
       def receive = {
-        case a => println (s"received $a")
+        case a: Any => println (s"received $a")
       }
     }
+  }
+
+  def compose: Unit = {
+    source.map(t => 1).runWith(Sink.fold[Int, Int](0)(_ + _))
   }
 
 

@@ -71,10 +71,4 @@ object SimpleFlow {
   def compose: Unit = {
     source.map(t => 1).runWith(Sink.fold[Int, Int](0)(_ + _))
   }
-
-
-
-
-
-
 }

@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
-  * Illustrates different kinds of Sink using a ActorMaterializer
+  * Illustrates different kinds of Sink using an ActorMaterializer
   */
 object SimpleFlow {
   implicit val system = ActorSystem("simple-log")

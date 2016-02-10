@@ -24,6 +24,7 @@ object SimpleFlow {
     compose
 
     sourceIterator
+    sourceFuture
   }
 
   def simpleFlow: Unit = {
@@ -72,6 +73,13 @@ object SimpleFlow {
 
   def sourceIterator: Unit = {
     val source = Source.fromIterator(() => List("hello", "world").iterator)
+    val sink = Sink.head[String]
+    val runnableGraph: RunnableGraph[Future[String]] = source.toMat(sink)(Keep.right)
+    runnableGraph.run().foreach(println(_))
+  }
+
+  def sourceFuture: Unit = {
+    val source = Source.fromFuture(Future.successful("hello streams"))
     val sink = Sink.head[String]
     val runnableGraph: RunnableGraph[Future[String]] = source.toMat(sink)(Keep.right)
     runnableGraph.run().foreach(println(_))
